@@ -1,5 +1,5 @@
 # esphome
-ESP IoT Devices with ESPHome Firmware
+Espressif IoT Devices with ESPHome Firmware
 
 Contains configurations for
 
