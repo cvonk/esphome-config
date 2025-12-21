@@ -1,5 +1,5 @@
 # esphome
-Espressif IoT Devices with ESPHome Firmware
+[ESPHome](https://esphome.io/) firmware for IoT Devices.
 
 Contains configurations for
 
