@@ -1,0 +1,455 @@
+esphome:
+  name: kc868-ai
+  friendly_name: kc868-ai
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+  
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: .iot.vonkio.com
+  min_auth_mode: WPA2
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "KC868-AI Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Configuration entry
+#ethernet:
+#  type: LAN8720
+#  mdc_pin: GPIO23
+#  mdio_pin: GPIO18
+#  clk_mode: GPIO17_OUT
+#  phy_addr: 0
+#  domain: .iot.vonkio.com
+
+# Configuration entry for ESP32
+i2c:
+  sda: 4
+  scl: 5
+  scan: true
+  id: bus_a
+
+# Configuration entry
+pcf8574:
+  - id: 'pcf8574_hub_in_1'  # for input channel 1-8
+    address: 0x24
+
+  - id: 'pcf8574_hub_in_2'  # for input channel 9-16
+    address: 0x25
+
+  - id: 'pcf8574_hub_in_3'  # for input channel 17-24
+    address: 0x21
+
+  - id: 'pcf8574_hub_in_4'  # for input channel 25-32
+    address: 0x22
+
+  - id: 'pcf8574_hub_in_5'  # for input channel 33-40
+    address: 0x26
+
+  - id: 'pcf8574_hub_in_6'  # for input channel 41-48
+    address: 0x23
+
+# Individual inputs
+
+binary_sensor:
+  - platform: gpio
+    name: "ai-input1"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 0
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input2"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input3"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input4"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input5"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input6"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input7"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input8"
+    pin:
+      pcf8574: pcf8574_hub_in_1
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input9"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 0
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input10"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input11"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input12"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input13"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input14"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input15"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input16"
+    pin:
+      pcf8574: pcf8574_hub_in_2
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input17"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 0
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input18"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input19"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input20"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input21"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input22"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input23"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input24"
+    pin:
+      pcf8574: pcf8574_hub_in_3
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input25"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 0
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input26"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input27"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input28"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input29"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input30"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input31"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input32"
+    pin:
+      pcf8574: pcf8574_hub_in_4
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input33"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 0
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input34"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input35"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input36"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input37"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input38"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input39"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input40"
+    pin:
+      pcf8574: pcf8574_hub_in_5
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input41"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 0
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input42"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 1
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input43"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 2
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input44"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 3
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input45"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 4
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input46"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 5
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input47"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 6
+      mode: INPUT
+      inverted: true
+
+  - platform: gpio
+    name: "ai-input48"
+    pin:
+      pcf8574: pcf8574_hub_in_6
+      number: 7
+      mode: INPUT
+      inverted: true
