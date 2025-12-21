@@ -20,12 +20,14 @@ ota:
     password: !secret ota_password
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
   domain: .iot.vonkio.com
   min_auth_mode: WPA2
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
+  networks:
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+  - ssid: !secret old_wifi_ssid
+    password: !secret old_wifi_password  
+  ap: # in case wifi connection fails
     ssid: "KC868-AI Fallback Hotspot"
     password: !secret wifi_password
 
