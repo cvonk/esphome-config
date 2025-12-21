@@ -1,6 +1,10 @@
+substitutions:
+  devicename: "kc868-ai"
+  friendly_devicename: "KC868-AI"
+
 esphome:
-  name: kc868-ai
-  friendly_name: kc868-ai
+  name: ${devicename}
+  friendly_name: ${friendly_devicename}
 
 esp32:
   board: esp32dev
@@ -28,7 +32,7 @@ wifi:
   - ssid: !secret old_wifi_ssid
     password: !secret old_wifi_password  
   ap: # in case wifi connection fails
-    ssid: "KC868-AI Fallback Hotspot"
+    ssid: "${devicename} Fallback Hotspot"
     password: !secret wifi_password
 
 captive_portal:
@@ -457,3 +461,14 @@ binary_sensor:
       number: 7
       mode: INPUT
       inverted: true
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP"
+      id: device_ip
+      icon: "mdi:ip-outline"
+    ssid:
+      name: "SSID"
+      id: device_ssid
+      icon: "mdi:wifi-settings"
