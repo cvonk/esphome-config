@@ -1,33 +1,9 @@
+# bt-proxy device specific config
+
 esphome:
   name: bt-proxy-1
-  friendly_name: bt-proxy-1
+  friendly_name: "BT Proxy 1"
 
-esp32:
-  board: esp32dev
-  framework:
-    type: esp-idf
+# bt-proxy generic config
 
-# Enable logging
-logger:
-
-# Enable Home Assistant API
-api:
-  encryption:
-    key: "oUl7ottmVcjxhr5+YReegvfOO58QMy+dIwZZC4F69Uk="
-
-ota:
-  - platform: esphome
-    password: "528677e215fbe1a54bb386de22231367"
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Bt-Proxy-1 Fallback Hotspot"
-    password: "C6xoqNZW1d00"
-
-captive_portal:
-    
-bluetooth_proxy:
+<<: !include bt-proxy-base.yaml
