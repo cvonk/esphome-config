@@ -1,0 +1,315 @@
+# Sonoff S31 generic configuration
+
+# based on https://community.home-assistant.io/t/sonoff-s31-outlet-with-esphome-example-yaml/434828/11
+# by aruffell, 2024-07
+
+wifi:
+  domain: .iot.vonkio.com
+  min_auth_mode: WPA2
+  reboot_timeout: 0s
+  networks:
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+  - ssid: !secret old_wifi_ssid
+    password: !secret old_wifi_password  
+  ap: # enable fallback hotspot (captive portal) in case wifi connection fails
+    ssid: "${devicename} Fallback Hotspot"
+    password: !secret wifi_password
+
+# template starts here
+
+esphome:
+  name: ${devicename}
+  comment: ${device_description}
+  friendly_name: ${friendly_devicename}
+
+esp8266:
+  board: esp01_1m
+  early_pin_init: false #This prevents the on-off-on of the outlet upon firmware upload
+
+logger:
+  baud_rate: 0 # (UART logging interferes with cse7766)
+  
+# Remove this line if you're not using Home Assistsant or your switch will restart every now and again
+api:
+  encryption:
+    key: !secret api_encryption_key 
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+web_server:
+  port: 80
+  include_internal: true
+
+# Sync time with Home Assistant
+# Used to calculate total daily energy
+time:
+  - platform: homeassistant
+    id: ha_time  
+
+uart:
+  rx_pin: RX
+  baud_rate: 4800
+  parity: EVEN
+  stop_bits: 1
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP"
+      id: device_ip
+      icon: "mdi:ip-outline"
+      #update_interval: ${update_interval_wifi}
+    #dns_address:
+    #  name: "DNS"
+    #  id: device_dns
+    #  icon: "mdi:dns-outline"
+    #  #update_interval: ${update_interval_wifi}
+    ssid:
+      name: "SSID"
+      id: device_ssid
+      icon: "mdi:wifi-settings"
+      #update_interval:  ${update_interval_wifi}
+    #bssid:
+    #  name: "BSSID"
+    #  icon: "mdi:wifi-settings"
+    #  update_interval:  ${update_interval_wifi}
+    #mac_address:
+    #  name: "MAC"
+    #  icon: "mdi:network-outline"
+    #scan_results:
+    #  name: "Wifi Scan"
+    #  icon: "mdi:wifi-refresh"
+    #  update_interval:  ${update_interval_wifi}
+    #  disabled_by_default: true
+
+binary_sensor:
+  # exposes the node state (if it’s connected to via MQTT/native API) for Home Assistant.
+  #- platform: status
+  #  name: "Connection Status"
+  #  id: connection_status
+  #  entity_category: diagnostic
+
+  - platform: gpio
+    id: outlet_button
+    name:  "Button"
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    entity_category: ''
+    on_press:
+        then:
+          - if:
+              condition: # only toggle outlet if button is enabled
+                lambda: 'return (id(select_button).state == "Enabled");'
+              then:
+                switch.toggle: outlet
+
+  - platform: template
+    id: threshold_status
+    name: "Above Threshold"
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval:  ${update_interval_wifi}
+
+  - platform: cse7766 # https://esphome.io/components/sensor/cse7766.html
+    #current:
+    #  name: "Current"
+    #  id: current
+    #  state_class: measurement
+    #  device_class: current
+    #  unit_of_measurement: A
+    #  accuracy_decimals: 1
+    #  filters:
+    #    - throttle_average: ${cse7766_throttle_interval}
+    voltage:
+      name: "Voltage"
+      id: voltage
+      state_class: measurement
+      device_class: voltage
+      unit_of_measurement: V
+      accuracy_decimals: 0
+      filters:
+        - throttle_average: ${cse7766_throttle_interval}
+        - offset: ${voltage_cal}
+    power:
+      name: "Power"
+      id: power
+      state_class: measurement
+      device_class: power
+      unit_of_measurement: W
+      accuracy_decimals: 0
+      filters:
+        - throttle_average: ${cse7766_throttle_interval}
+      on_value:  # set or clear threshold_status template binary sensor depending on whether power usage is over threshold
+        - if:
+            condition:
+              lambda: 'return (x >= id(power_threshold).state);'
+            then:
+              - binary_sensor.template.publish:
+                  id: threshold_status
+                  state: ON
+              - if:
+                  condition:
+                    lambda: 'return (id(select_led).state == "Threshold");'
+                  then:
+                    - switch.turn_on: blue_led
+            else:
+              - binary_sensor.template.publish:
+                  id: threshold_status
+                  state: OFF
+              - if:
+                  condition:
+                    lambda: 'return (id(select_led).state == "Threshold");'
+                  then:
+                    - switch.turn_off: blue_led
+    #apparent_power:
+    #  name: "Apparent Power"
+    #  accuracy_decimals: 1
+    #  filters:
+    #    - throttle_average: ${cse7766_throttle_interval}
+
+    #power_factor:
+    #  name: "Power Factor"
+    #  accuracy_decimals: 1
+    #  filters:
+    #    - throttle_average: ${cse7766_throttle_interval}
+
+    #energy:
+    #  name: "Energy"
+    #  accuracy_decimals: 3
+    #  unit_of_measurement: kWh
+    #  state_class: total_increasing
+    #  device_class: energy
+    #  filters:
+    #    - throttle: ${cse7766_throttle_interval}
+    #    - multiply: 0.001 # convert W to kW
+
+  - platform: total_daily_energy
+    name: "Daily Energy"
+    power_id: power
+    filters:
+      - multiply: 0.001 # convert W to kW
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+
+number: # used as a threshold for whether the plugged-in devices is running
+  - platform: template
+    name: "Power Threshold"
+    min_value: 1
+    max_value: 1800
+    step: 1
+    initial_value: 3
+    id: power_threshold
+    entity_category: config
+    optimistic: true # required for changing value from home assistant
+    restore_value: true
+    unit_of_measurement: W
+    mode: box
+    on_value:
+      - if:
+          condition:
+            lambda: 'return (id(power).state >= x);'
+          then:
+            - binary_sensor.template.publish:
+                id: threshold_status
+                state: ON
+            - if:
+                condition:
+                  lambda: 'return (id(select_led).state == "Threshold");'
+                then:
+                  - switch.turn_on: blue_led
+          else:
+            - binary_sensor.template.publish:
+                id: threshold_status
+                state: OFF  
+            - if:
+                condition:
+                  lambda: 'return (id(select_led).state == "Threshold");'
+                then:
+                  - switch.turn_off: blue_led
+
+switch:
+  - platform: gpio # blue LED follows outlet power state
+    id: blue_led
+    pin:
+      number: GPIO13
+      inverted: true
+    
+  - platform: gpio # outlet output
+    id: outlet
+    name: 'Outlet'
+    icon: "mdi:power-socket"
+    pin: GPIO12
+    entity_category: ''
+    restore_mode: ${restore_mode_setting}
+    on_turn_on: # automatically make blue led equal outlet state if set to "Outlet"
+      - if:
+          condition:
+            lambda: 'return (id(select_led).state == "Outlet");'
+          then:
+            switch.turn_on: blue_led
+    on_turn_off:
+      - if:
+          condition:
+            lambda: 'return (id(select_led).state == "Outlet");'
+          then:
+            switch.turn_off: blue_led
+
+#Do not enable otherwise Blue led can't be configured
+#status_led:
+#    pin:
+#      number: GPIO13
+
+button:
+  - platform: restart
+    id: restart_button
+    name: "Restart"
+    entity_category: diagnostic
+
+select:
+  - platform: template # option to disable button
+    name: "Button"
+    id: select_button
+    optimistic: true
+    options:
+      - Enabled
+      - Disabled
+    initial_option: Enabled
+    restore_value: true
+    icon: mdi:circle-double
+    entity_category: config
+
+  - platform: template # option to disable blue LED
+    name: "Blue LED"
+    id: select_led
+    optimistic: true
+    entity_category: config
+    options:
+      - Outlet
+      - Threshold
+      - Disabled
+    initial_option: Outlet
+    restore_value: true
+    icon: mdi:led-on
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return (id(select_led).state == "Disabled");'
+            then:
+              switch.turn_off: blue_led
+        - if:
+            condition:
+              lambda: 'return ( (id(select_led).state == "Outlet") && id(outlet).state );'
+            then:
+              switch.turn_on: blue_led
+            else:
+              switch.turn_off: blue_led
