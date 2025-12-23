@@ -1,8 +1,9 @@
 # bt-proxy device specific config
 
-esphome:
+substitutions:
   name: bt-proxy-1
   friendly_name: "BT Proxy 1"
+  description: "Bluetooth proxy device for triangulating devices"
 
 # bt-proxy generic config
 

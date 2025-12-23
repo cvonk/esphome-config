@@ -1,9 +1,9 @@
-# device specific configuration
+# device specific config
 
 substitutions:
-  devicename: "sonoff-s31-12"
-  friendly_devicename: "Sonoff S31 12"
-  device_description: "${devicename} - Outlet Switch"
+  name: "sonoff-s31-12"
+  friendly_name: "Sonoff S31 12"
+  description: "Socket switch with power monitoring"
   voltage_cal: "0.5"
   update_interval_wifi: "120s"
   cse7766_throttle_interval: "60s"
@@ -15,6 +15,6 @@ substitutions:
   # ALWAYS_OFF                   - Always initialize the pin as OFF on bootup.
   # ALWAYS_ON                    - Always initialize the pin as ON on bootup.
 
-# Sonoff S31 generic configuration
+# Sonoff S31 generic config
 
 <<: !include sonoff-s31-base.yaml

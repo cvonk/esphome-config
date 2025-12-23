@@ -1,34 +1,44 @@
 # bt-proxy generic configuration
 
+wifi:
+  domain: .iot.vonkio.com
+  min_auth_mode: WPA2
+  reboot_timeout: 0s
+  networks:
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+  ap: # enable fallback hotspot (captive portal) in case wifi connection fails
+    ssid: "${name} Fallback Hotspot"
+    password: !secret wifi_password
+
 esphome:
-  name: bt-proxy-1
-  friendly_name: bt-proxy-1
+  name: ${name}
+  comment: ${description}
+  friendly_name: ${friendly_name}
 
 esp32:
   board: esp32dev
   framework:
     type: esp-idf
 
-# Enable logging
 logger:
-
-# Enable Home Assistant API
+  baud_rate: 0 # (UART logging interferes with cse7766)
+  
 api:
   encryption:
-    key: "oUl7ottmVcjxhr5+YReegvfOO58QMy+dIwZZC4F69Uk="
+    key: !secret api_encryption_key 
 
 ota:
   - platform: esphome
-    password: "528677e215fbe1a54bb386de22231367"
+    password: !secret ota_password
 
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+time:
+  - platform: homeassistant
+    id: ha_time  
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Bt-Proxy-1 Fallback Hotspot"
-    password: "C6xoqNZW1d00"
+web_server:
+  port: 80
+  include_internal: true
 
 captive_portal:
     
