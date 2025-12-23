@@ -1,0 +1,10 @@
+# bt-proxy device specific config
+
+substitutions:
+  name: bt-proxy-10
+  friendly_name: "BT Proxy 10"
+  description: "Bluetooth proxy device for triangulating devices"
+
+# bt-proxy generic config
+
+<<: !include bt-proxy-base.yaml
