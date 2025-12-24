@@ -2,7 +2,7 @@
 
 substitutions:
   name: "sonoff-s31-4"
-  friendly_name: "Sonoff S31 4"
+  friendly_name: "Sonoff-S31 4"
   description: "Socket switch with power monitoring"
   voltage_cal: "0.5"
   update_interval_wifi: "120s"

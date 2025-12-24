@@ -2,7 +2,7 @@
 
 substitutions:
   name: "sonoff-s20-4"
-  friendly_name: "Sonoff S20 4"
+  friendly_name: "Sonoff-S20 4"
   description: "Socket switch"
   update_interval_wifi: "120s"
   restore_mode_setting: RESTORE_DEFAULT_ON # how the outlet attempts to restore state on bootup
