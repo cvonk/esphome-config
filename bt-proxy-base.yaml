@@ -5,7 +5,7 @@
 # Then let go. See https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html
 
 wifi:
-  domain: .iot.vonkio.com
+  domain: !secret domain_name
   min_auth_mode: WPA2
   reboot_timeout: 0s
   networks:

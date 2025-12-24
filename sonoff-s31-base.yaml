@@ -11,7 +11,7 @@
 # ALWAYS_ON                    - Always initialize the pin as ON on bootup.
 
 wifi:
-  domain: .iot.vonkio.com
+  domain: !secret domain_name
   min_auth_mode: WPA2
   reboot_timeout: 0s
   networks:
