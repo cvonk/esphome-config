@@ -11,6 +11,8 @@ Contains configurations for
 
 ## FAQ
 
+* Do not compile the `*-base.yaml` files.  It will give the error `'$' is an invalid character for names.`
+
 * On Sonoff devices running Tasmato firmware, you can flash the firmware directly
 using their UI.  Note that you need to compress it using `gzip` first.  When it doesn't fit, disable the `web_server` section.
 
