@@ -2,6 +2,13 @@
 
 # based on https://community.home-assistant.io/t/sonoff-s31-outlet-with-esphome-example-yaml/434828/11
 # by aruffell, 2024-07
+#
+# RESTORE_DEFAULT_OFF          - Attempt to restore state and default to OFF if not possible to restore.
+# RESTORE_DEFAULT_ON           - Attempt to restore state and default to ON if not possible to restore.
+# RESTORE_INVERTED_DEFAULT_OFF - Attempt to restore state inverted from the previous state and default to OFF.
+# RESTORE_INVERTED_DEFAULT_ON  - Attempt to restore state inverted from the previous state and default to ON.
+# ALWAYS_OFF                   - Always initialize the pin as OFF on bootup.
+# ALWAYS_ON                    - Always initialize the pin as ON on bootup.
 
 wifi:
   domain: .iot.vonkio.com
@@ -20,7 +27,7 @@ esphome:
   friendly_name: ${friendly_name}
 
 esp8266:
-  board: esp01_1m
+  board: esp12e # was esp01_1m
   early_pin_init: false #This prevents the on-off-on of the outlet upon firmware upload
 
 logger:

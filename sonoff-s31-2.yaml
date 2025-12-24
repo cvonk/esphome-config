@@ -1,14 +1,13 @@
 # device specific config
 
 substitutions:
-  name: "sonoff-s31-12"
-  friendly_name: "Sonoff S31 12"
+  name: "sonoff-s31-2"
+  friendly_name: "Sonoff S31 2"
   description: "Socket switch with power monitoring"
   voltage_cal: "0.5"
   update_interval_wifi: "120s"
   cse7766_throttle_interval: "60s"
   restore_mode_setting: RESTORE_DEFAULT_ON # how the outlet attempts to restore state on bootup
-
 # Sonoff S31 generic config
 
 <<: !include sonoff-s31-base.yaml
