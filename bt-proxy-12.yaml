@@ -3,7 +3,8 @@
 substitutions:
   name: bt-proxy-12
   friendly_name: "BT Proxy 12"
-  description: "Bluetooth proxy device for triangulating devices"
+  description: "Bluetooth proxy for triangulating devices"
+  update_interval_wifi: "120s"
 
 # bt-proxy generic config
 

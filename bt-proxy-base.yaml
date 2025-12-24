@@ -1,4 +1,8 @@
 # bt-proxy generic configuration
+#
+# If you get "ERROR Running command failed: Failed to connect to ESP32: Wrong boot mode detected (0x13)! The chip needs to be in download mode.",
+# then bring GPIO0 down (press BOOT), while the esphome upload starts (and applies RST).
+# Then let go. See https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html
 
 wifi:
   domain: .iot.vonkio.com
@@ -43,3 +47,44 @@ web_server:
 captive_portal:
     
 bluetooth_proxy:
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval:  ${update_interval_wifi}
+
+button:
+  - platform: restart
+    id: restart_button
+    name: "Restart"
+    entity_category: diagnostic
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP"
+      id: device_ip
+      icon: "mdi:ip-outline"
+      #update_interval: ${update_interval_wifi}
+    ssid:
+      name: "SSID"
+      id: device_ssid
+      icon: "mdi:wifi-settings"
+      #update_interval:  ${update_interval_wifi}
+    #dns_address:
+    #  name: "DNS"
+    #  id: device_dns
+    #  icon: "mdi:dns-outline"
+    #  #update_interval: ${update_interval_wifi}
+    #bssid:
+    #  name: "BSSID"
+    #  icon: "mdi:wifi-settings"
+    #  update_interval:  ${update_interval_wifi}
+    #mac_address:
+    #  name: "MAC"
+    #  icon: "mdi:network-outline"
+    #scan_results:
+    #  name: "Wifi Scan"
+    #  icon: "mdi:wifi-refresh"
+    #  update_interval:  ${update_interval_wifi}
+    #  disabled_by_default: true
