@@ -11,6 +11,9 @@ Contains configurations for
 
 ## FAQ
 
+* On Sonoff devices running Tasmato firmware, you can flash the firmware directly
+using their UI.  Note that you need to compress it using `gzip` first.  When it doesn't fit, disable the `web_server` section.
+
 * If you get `ERROR Running command failed: Failed to connect to ESP32: Wrong boot 
 mode detected (0x13)! The chip needs to be in download mode.`, then bring 
 `GPIO0` down (press BOOT), while the ESPHome starts to upload the binary 
