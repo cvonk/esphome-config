@@ -1,6 +1,10 @@
 # Sonoff S31 generic configuration
 
-# based on https://community.home-assistant.io/t/sonoff-s31-outlet-with-esphome-example-yaml/434828/11
+# If you get "ERROR Running command failed: Failed to connect to ESP32: Wrong boot mode detected (0x13)! The chip needs to be in download mode.",
+# then bring GPIO0 down (press BOOT), while the esphome upload starts (and applies RST).
+# Then let go. See https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html
+
+# Based on https://community.home-assistant.io/t/sonoff-s31-outlet-with-esphome-example-yaml/434828/11
 # by aruffell, 2024-07
 #
 # RESTORE_DEFAULT_OFF          - Attempt to restore state and default to OFF if not possible to restore.
