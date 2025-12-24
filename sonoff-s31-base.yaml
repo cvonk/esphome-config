@@ -17,8 +17,8 @@ wifi:
   networks:
   - ssid: !secret wifi_ssid
     password: !secret wifi_password
-  ap: # enable fallback hotspot (captive portal) in case wifi connection fails
-    ssid: "${name} Fallback Hotspot"
+  ap: # enable fallback ap captive portal in case wifi connection fails
+    ssid: "${name} Config"
     password: !secret wifi_password
 
 esphome:
@@ -28,7 +28,7 @@ esphome:
 
 esp8266:
   board: esp12e # was esp01_1m
-  early_pin_init: false #This prevents the on-off-on of the outlet upon firmware upload
+  early_pin_init: false # prevent the on-off-on during firmware upload
 
 logger:
   baud_rate: 0 # (UART logging interferes with cse7766)
@@ -105,7 +105,8 @@ binary_sensor:
         then:
           - if:
               condition: # only toggle outlet if button is enabled
-                lambda: 'return (id(select_button).state == "Enabled");'
+                lambda: |-
+                  return strcmp(id(select_button).current_option(), "Enabled") == 0;
               then:
                 switch.toggle: outlet
 
@@ -157,7 +158,8 @@ sensor:
                   state: ON
               - if:
                   condition:
-                    lambda: 'return (id(select_led).state == "Threshold");'
+                    lambda: |-
+                      return strcmp(id(select_led).current_option(), "Threshold") == 0;
                   then:
                     - switch.turn_on: blue_led
             else:
@@ -166,7 +168,8 @@ sensor:
                   state: OFF
               - if:
                   condition:
-                    lambda: 'return (id(select_led).state == "Threshold");'
+                    lambda: |-
+                      return strcmp(id(select_led).current_option(), "Threshold") == 0;
                   then:
                     - switch.turn_off: blue_led
     #apparent_power:
@@ -224,7 +227,8 @@ number: # used as a threshold for whether the plugged-in devices is running
                 state: ON
             - if:
                 condition:
-                  lambda: 'return (id(select_led).state == "Threshold");'
+                  lambda: |-
+                    return strcmp(id(select_led).current_option(), "Threshold") == 0;
                 then:
                   - switch.turn_on: blue_led
           else:
@@ -233,7 +237,8 @@ number: # used as a threshold for whether the plugged-in devices is running
                 state: OFF  
             - if:
                 condition:
-                  lambda: 'return (id(select_led).state == "Threshold");'
+                  lambda: |-
+                    return strcmp(id(select_led).current_option(), "Threshold") == 0;
                 then:
                   - switch.turn_off: blue_led
 
@@ -254,13 +259,15 @@ switch:
     on_turn_on: # automatically make blue led equal outlet state if set to "Outlet"
       - if:
           condition:
-            lambda: 'return (id(select_led).state == "Outlet");'
+            lambda: |-
+              return strcmp(id(select_led).current_option(), "Outlet") == 0;
           then:
             switch.turn_on: blue_led
     on_turn_off:
       - if:
           condition:
-            lambda: 'return (id(select_led).state == "Outlet");'
+            lambda: |-
+              return strcmp(id(select_led).current_option(), "Outlet") == 0;
           then:
             switch.turn_off: blue_led
 
@@ -304,12 +311,14 @@ select:
       then:
         - if:
             condition:
-              lambda: 'return (id(select_led).state == "Disabled");'
+              lambda: |-
+                return strcmp(id(select_led).current_option(), "Disabled") == 0;
             then:
               switch.turn_off: blue_led
         - if:
             condition:
-              lambda: 'return ( (id(select_led).state == "Outlet") && id(outlet).state );'
+              lambda: |-
+                return (strcmp(id(select_led).current_option(), "Outlet") == 0) && id(outlet).state;
             then:
               switch.turn_on: blue_led
             else:
