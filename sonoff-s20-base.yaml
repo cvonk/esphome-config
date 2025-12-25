@@ -29,6 +29,7 @@ esphome:
   comment: ${description}
   friendly_name: ${friendly_name}
 
+# 1024 kB Flash
 esp8266:
   board: sonoff_s20
 
