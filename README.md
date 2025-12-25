@@ -3,11 +3,13 @@
 
 Contains configurations for
 
-* [Sonoff S31 Smart Plug with Energy Monitoring](https://sonoff.tech/en-us/products/sonoff-s31-s31-lite-compact-design-smart-plug-with-energy-monitoring-us-type): measures electric energy use.
+* [Sonoff S31 Smart Plug with Energy Monitoring](https://sonoff.tech/en-us/products/sonoff-s31-s31-lite-compact-design-smart-plug-with-energy-monitoring-us-type): measures electric energy use. Be careful: logical ground is connected to the HOT NEUTRAL. Unplug when flashing!
 
-* [Kincody KC868-AI](https://www.kincony.com/esp32-input-module.html): brings wired door and window sensors into the 21st century.
+* [Kincody KC868-AI](https://www.kincony.com/esp32-input-module.html): Provides 48 optical isolated inputs digital inputs. Helps me bring the wired door and window sensors into the 21st century. 
 
 * [BT Proxy on ESP32 Dev](https://www.espressif.com/en/products/devkits/esp32-devkitc/overview): used with the HACS integration [Bermuda BLE Trilateration](https://github.com/agittins/bermuda) as described in [ESPHome room presence detection](https://www.homeautomationguy.io/blog/room-location-detection-with-bermuda-and-home-assistant-8f94b).
+
+* [CircuitSetup Split Single Phase Energy Meter (ATM90E32) with ESP32](https://circuitsetup.us/product/split-single-phase-real-time-whole-house-energy-meter-v1-4/): measures electric energy use optical isolated using current probes.
 
 ## FAQ
 
