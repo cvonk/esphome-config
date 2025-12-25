@@ -3,11 +3,10 @@
 # https://circuitsetup.us/product/split-single-phase-real-time-whole-house-energy-meter-v1-4/
 
 # Based on https://devices.esphome.io/devices/circuitsetup-split-single-phase-energy-meter-atm90e32-with-esp32/
-# Based on https://esphome.io/components/sensor/atm90e32.html
 
 substitutions:
-  name: "energymeter"
-  friendly_name: "ATM90E32 Energy Meter"
+  name: "electricmeter_dryer"
+  friendly_name: "CircuitSetup ATM90E32 Energy Meter"
   comment: "CircuitSetup Split Single Phase Energy Meter with ESP32 and ATM90E32"
   # Interval of how often the power is updated
   update_interval_wifi: "120s"
@@ -33,10 +32,10 @@ substitutions:
 
 esphome:
   name: ${name}
-  comment: ${description}
+  comment: ${comment}
   friendly_name: ${friendly_name}
 
-# 4096 kB Flash
+# ESP32-D0WDQ6, 4096 kB Flash
 esp32:
   variant: esp32
   framework:
@@ -64,9 +63,9 @@ ota:
   - platform: esphome
     password: !secret ota_password
 
-#web_server:
-#  port: 80
-#  include_internal: true
+web_server:
+  port: 80
+  include_internal: true
 
 time:
   - platform: homeassistant
@@ -86,74 +85,74 @@ button:
 sensor:
   - platform: atm90e32
     cs_pin: 5
+    line_frequency: ${line_frequency}
+    gain_pga: 2X
+    update_interval: ${update_time_atm90e32}
 
     phase_a:
       voltage:
         name: "Voltage"
         accuracy_decimals: 0
-      current:
-        name: "CT1 Current"
-        id: ct1_current
-        # The max value for current that the meter can output is 65.535. If you
-        # expect to measure current over 65A, divide the gain_ct by 2 (120A CT) or
-        # 4 (200A CT) and multiply the current and power values by 2 or 4 by
-        # uncommenting the filter below:
-        #filters:
-        #  - multiply: 2
+      #current:
+      #  name: "CT1 Current"
+      #  id: ct1_current
+      #  # The max value for current that the meter can output is 65.535. If you
+      #  # expect to measure current over 65A, divide the gain_ct by 2 (120A CT) or
+      #  # 4 (200A CT) and multiply the current and power values by 2 or 4 by
+      #  # uncommenting the filter below:
+      #  #filters:
+      #  #  - multiply: 2
       power:
         name: "CT1 Power"
         accuracy_decimals: 0
         id: ct1_power
         #filters:
         #  - multiply: 2
-      reactive_power:
-        name: "CT1 Reactive Power"
-        accuracy_decimals: 0
-        id: ct1_reactive_power
-        #filters:
-        #  - multiply: 2
+      #reactive_power:
+      #  name: "CT1 Reactive Power"
+      #  accuracy_decimals: 0
+      #  id: ct1_reactive_power
+      #  #filters:
+      #  #  - multiply: 2
       gain_voltage: ${voltage_cal}
       gain_ct: ${current_cal}
 
     phase_c:
-      current:
-        name: "CT2 Current"
-        id: ct2_current
-        #filters:
-        #  - multiply: 2
+      #current:
+      #  name: "CT2 Current"
+      #  id: ct2_current
+      #  #filters:
+      #  #  - multiply: 2
       power:
         name: "CT2 Power"
         accuracy_decimals: 0
         id: ct2_power
         #filters:
         #  - multiply: 2
-      reactive_power:
-        name: "CT2 Reactive Power"
-        accuracy_decimals: 0
-        id: ct2_reactive_power
-        #filters:
-        #  - multiply: 2
-      gain_voltage: ${voltage_cal}
-      gain_ct: ${current_cal}
+      #reactive_power:
+      #  name: "CT2 Reactive Power"
+      #  accuracy_decimals: 0
+      #  id: ct2_reactive_power
+      #  #filters:
+      #  #  - multiply: 2
+      #gain_voltage: ${voltage_cal}
+      #gain_ct: ${current_cal}
 
-    frequency:
-      name: "Frequency"
+    #frequency:
+    #  name: "Frequency"
 
-    chip_temperature:
-      name: "Chip Temp"
+    #chip_temperature:
+    #  name: "Chip Temp"
 
-    line_frequency: ${line_frequency}
-    gain_pga: 2X
-    update_interval: ${update_time_atm90e32}
     
-  - platform: template
-    name: "Total Current"
-    id: ${name}_total_current
-    lambda: return id(ct1_current).state + id(ct2_current).state;
-    accuracy_decimals: 2
-    unit_of_measurement: A
-    update_interval: ${update_time_atm90e32}
-    icon: "mdi:current-ac"
+  #- platform: template
+  #  name: "Total Current"
+  #  id: ${name}_total_current
+  #  lambda: return id(ct1_current).state + id(ct2_current).state;
+  #  accuracy_decimals: 2
+  #  unit_of_measurement: A
+  #  update_interval: ${update_time_atm90e32}
+  #  icon: "mdi:current-ac"
 
   - platform: template
     name: "Total Power"
@@ -164,14 +163,14 @@ sensor:
     icon: "mdi:power"
     update_interval: ${update_time_atm90e32}
 
-  - platform: template
-    name: "Total Reactive Power"
-    id: ${name}_total_reactive_power
-    lambda: return id(ct1_reactive_power).state + id(ct2_reactive_power).state;
-    accuracy_decimals: 0
-    unit_of_measurement: VAR
-    icon: "mdi:flash-circle"
-    update_interval: ${update_time_atm90e32}
+  #- platform: template
+  #  name: "Total Reactive Power"
+  #  id: ${name}_total_reactive_power
+  #  lambda: return id(ct1_reactive_power).state + id(ct2_reactive_power).state;
+  #  accuracy_decimals: 0
+  #  unit_of_measurement: VAR
+  #  icon: "mdi:flash-circle"
+  #  update_interval: ${update_time_atm90e32}
 
   - platform: total_daily_energy
     name: "Total Daily Energy"
