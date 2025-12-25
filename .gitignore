@@ -1,2 +1,4 @@
 secrets.yaml
 .esphome/
+firmware.factory.bin
+firmware.ota.bin
