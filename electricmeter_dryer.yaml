@@ -4,6 +4,8 @@
 
 # Based on https://devices.esphome.io/devices/circuitsetup-split-single-phase-energy-meter-atm90e32-with-esp32/
 
+# When updating over UART: keep BOOT button pressed until upload starts.
+
 substitutions:
   name: "electricmeter_dryer"
   friendly_name: "CircuitSetup ATM90E32 Energy Meter"
