@@ -160,8 +160,10 @@ sensor:
     name: "Power"
     id: power
     lambda: return id(ct1_power).state + id(ct2_power).state;
-    accuracy_decimals: 0
+    state_class: measurement
+    device_class: power
     unit_of_measurement: W
+    accuracy_decimals: 0
     icon: "mdi:power"
     update_interval: ${update_time_atm90e32}
 
