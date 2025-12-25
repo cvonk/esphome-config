@@ -7,7 +7,7 @@
 # When updating over UART: keep BOOT button pressed until upload starts.
 
 substitutions:
-  name: "electricmeter_dryer"
+  name: "electricmeter-dryer"
   friendly_name: "CircuitSetup ATM90E32 Energy Meter"
   comment: "CircuitSetup Split Single Phase Energy Meter with ESP32 and ATM90E32"
   # Interval of how often the power is updated
@@ -148,8 +148,8 @@ sensor:
 
     
   #- platform: template
-  #  name: "Total Current"
-  #  id: ${name}_total_current
+  #  name: "Current"
+  #  id: current
   #  lambda: return id(ct1_current).state + id(ct2_current).state;
   #  accuracy_decimals: 2
   #  unit_of_measurement: A
@@ -157,8 +157,8 @@ sensor:
   #  icon: "mdi:current-ac"
 
   - platform: template
-    name: "Total Power"
-    id: ${name}_total_power
+    name: "Power"
+    id: power
     lambda: return id(ct1_power).state + id(ct2_power).state;
     accuracy_decimals: 0
     unit_of_measurement: W
@@ -166,8 +166,8 @@ sensor:
     update_interval: ${update_time_atm90e32}
 
   #- platform: template
-  #  name: "Total Reactive Power"
-  #  id: ${name}_total_reactive_power
+  #  name: "Reactive Power"
+  #  id: reactive_power
   #  lambda: return id(ct1_reactive_power).state + id(ct2_reactive_power).state;
   #  accuracy_decimals: 0
   #  unit_of_measurement: VAR
@@ -175,9 +175,9 @@ sensor:
   #  update_interval: ${update_time_atm90e32}
 
   - platform: total_daily_energy
-    name: "Total Daily Energy"
-    id: ${name}_total_daily_energy
-    power_id: ${name}_total_power
+    name: "Daily Energy"
+    id: daily_energy
+    power_id: power
     accuracy_decimals: 3
     unit_of_measurement: kWh
     filters:
