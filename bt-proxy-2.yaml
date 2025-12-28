@@ -8,4 +8,4 @@ substitutions:
 
 # bt-proxy generic config
 
-<<: !include bt-proxy-base.yaml
+<<: !include bt-tracker-base.yaml

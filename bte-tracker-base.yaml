@@ -42,7 +42,11 @@ web_server:
 
 captive_portal:
     
-bluetooth_proxy:
+#bluetooth_proxy:
+
+esp32_ble_tracker:
+    scan_parameters:
+      active: True 
 
 sensor:
   - platform: wifi_signal

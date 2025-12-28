@@ -1,8 +1,8 @@
-# bt-proxy device specific config
+# ble-tracker device specific config
 
 substitutions:
-  name: bte-tracker-1
-  friendly_name: "BLE Tracker 1"
+  name: ble-tracker-6
+  friendly_name: "BLE Tracker 6"
   description: "Bluetooth Low Energy tracker for triangulating devices"
   update_interval_wifi: "120s"
 
