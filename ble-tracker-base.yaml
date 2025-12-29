@@ -1,5 +1,7 @@
 # bt-proxy generic configuration
 
+# based on https://github.com/myhomeiot/esphome-components/blob/main/examples/ble_gateway/esphome.yaml
+
 wifi:
   domain: !secret domain_name
   min_auth_mode: WPA2
@@ -17,14 +19,15 @@ esphome:
   friendly_name: ${friendly_name}
 
 esp32:
+  variant: ESP32
   board: esp32dev
   framework:
     type: esp-idf
 
 logger:
-  baud_rate: 0 # (UART logging interferes with cse7766)
+  baud_rate: 0
   
-api:
+api: # enable HA native API, https://esphome.io/components/api/#homeassistant-event-action
   encryption:
     key: !secret api_encryption_key 
 
@@ -42,49 +45,122 @@ web_server:
 
 captive_portal:
     
-#bluetooth_proxy:
-
 esp32_ble_tracker:
     scan_parameters:
       active: True 
 
-sensor:
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    update_interval:  ${update_interval_wifi}
+external_components:
+  - source: github://myhomeiot/esphome-components
 
-button:
-  - platform: restart
-    id: restart_button
-    name: "Restart"
+ble_gateway:
+  id: blegateway
+  #devices:
+  #  - mac_address: 01:23:45:67:89:AB
+  #  - mac_address: !secret lywsd03mmc_mac
+  on_ble_advertise:
+    then:
+      - if:
+          condition:
+            lambda: |-
+              static const esp32_ble_tracker::ESPBTUUID apple_manufacturer_id = esp32_ble_tracker::ESPBTUUID::from_uint16(0x004C);
+              for (auto data : x.get_manufacturer_datas())
+                if (data.uuid == apple_manufacturer_id) {
+                  ESP_LOGI("on_ble_advertise iBeacon", "[%s] Packet %s", x.address_str().c_str(),
+                      ble_gateway::BLEGateway::scan_result_to_hci_packet_hex(x.get_scan_result()).c_str());
+                  return true;
+                }
+              return false;
+          then:
+      #- homeassistant.event: # https://esphome.io/components/api/#homeassistantevent-action
+      #    event: esphome.on_ble_advertise
+      #    data:
+      #      packet: !lambda return packet;
+      #      # gateway_id: ${device_id}
+      - homeassistant.action: # enable "Allow the device to perform Home Assistant Actions" in the ESPHome integration settings for the device
+          action: ble_monitor.parse_data
+          data:
+            packet: !lambda return packet;  
+
+binary_sensor:
+  - platform: status
+    name: "Home Assistant"
+    id: ink_ha_connected
     entity_category: diagnostic
 
+  - platform: homeassistant
+    id: ble_gateway_discovery
+    entity_id: binary_sensor.ble_gateway
+    attribute: discovery
+    entity_category: config
+    disabled_by_default: false
+    on_state:
+      then:
+        lambda: id(blegateway).set_discovery(x);
+
 text_sensor:
+  #- platform: ble_scanner
+  #  name: "BLE Devices Scanner"
+  #  id: ble_devices_scanner 
+  #  icon: "mdi:bluetooth"
+
   - platform: wifi_info
     ip_address:
       name: "IP"
       id: device_ip
-      icon: "mdi:ip-outline"
-      #update_interval: ${update_interval_wifi}
+      icon: mdi:ip-outline
+      entity_category: diagnostic
     ssid:
       name: "SSID"
       id: device_ssid
-      icon: "mdi:wifi-settings"
-      #update_interval:  ${update_interval_wifi}
-    #dns_address:
-    #  name: "DNS"
-    #  id: device_dns
-    #  icon: "mdi:dns-outline"
-    #  #update_interval: ${update_interval_wifi}
-    #bssid:
-    #  name: "BSSID"
-    #  icon: "mdi:wifi-settings"
-    #  update_interval:  ${update_interval_wifi}
-    #mac_address:
-    #  name: "MAC"
-    #  icon: "mdi:network-outline"
-    #scan_results:
-    #  name: "Wifi Scan"
-    #  icon: "mdi:wifi-refresh"
-    #  update_interval:  ${update_interval_wifi}
-    #  disabled_by_default: true
+      icon: mdi:wifi-settings
+      entity_category: diagnostic
+  
+switch:
+  - platform: template
+    id: switch_ble_gateway_discovery
+    name: "BLE Gateway Discovery"
+    icon: mdi:bluetooth-connect
+    lambda: return id(blegateway).get_discovery();
+    turn_on_action: [lambda: id(blegateway).set_discovery(true);]
+    turn_off_action: [lambda: id(blegateway).set_discovery(false);]
+    disabled_by_default: false
+    entity_category: config
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal_strength
+    name: "WiFi Signal"
+    icon: mdi:wifi
+    unit_of_measurement: "dBm"  
+    state_class: measurement
+    update_interval:  ${update_interval_wifi}
+    entity_category: diagnostic
+
+  - platform: uptime
+    name: Uptime
+    id: sys_uptime
+    update_interval: 60s
+
+  - platform: template
+    id: esp_memory
+    name: "Free memory"
+    icon: mdi:memory
+    lambda: return heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024;
+    unit_of_measurement: "kB"
+    state_class: measurement
+    entity_category: diagnostic
+
+button:
+  - platform: restart
+    name: "Restart"
+    id: restart_button
+    icon: mdi:power-cycle
+    # disabled_by_default: True
+    entity_category: diagnostic
+
+  - platform: factory_reset
+    name: Factory Reset
+    id: factory_reset_al
+    disabled_by_default: true
+    entity_category: diagnostic
+
