@@ -1,0 +1,11 @@
+# ble-proxy device specific config
+
+substitutions:
+  device_name: ble-proxy-2
+  room_name: "Family room"
+  friendly_name: "BLE-proxy 2"
+  description: "BLE-proxy 2 in family room"
+
+# ble-proxy generic config
+
+<<: !include ble-proxy-base.yaml

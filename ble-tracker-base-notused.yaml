@@ -1,0 +1,135 @@
+# ble-tracker generic configuration
+#
+# This was an attempt to mimic nn ESP32 based presence detection node
+# https://github.com/ESPresense/ESPresense
+# Didn't move on with it, because its gets too complex compared to just using ble-proxy nodes.
+
+# see on https://github.com/myhomeiot/esphome-components/blob/main/examples/ble_gateway/esphome.yaml
+
+wifi:
+  domain: !secret domain_name
+  min_auth_mode: WPA2
+  reboot_timeout: 0s
+  networks:
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password
+  ap: # enable fallback ap captive portal in case wifi connection fails
+    ssid: "${device_name} Config"
+    password: !secret wifi_password
+  on_connect:
+    - esp32_ble_tracker.start_scan:
+        continuous: true
+  on_disconnect:
+    - esp32_ble_tracker.stop_scan:
+        continuous: false
+
+esphome:
+  name: ${device_name}
+  comment: ${description}
+  friendly_name: ${friendly_name}
+
+esp32:
+  variant: ESP32
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+logger:
+  baud_rate: 0
+  
+api: # enable HA native API, https://esphome.io/components/api/#homeassistant-event-action
+  encryption:
+    key: !secret api_encryption_key 
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+time:
+  - platform: homeassistant
+    id: ha_time  
+
+web_server:
+  port: 80
+  include_internal: true
+
+captive_portal:
+    
+mqtt:
+  id: mqtt_client
+  broker: !secret mqtt_host
+  username: !secret mqtt_uname
+  password: !secret mqtt_passwd
+  discovery: true
+  client_id: ${device_name}
+  idf_send_async: true
+
+# push ${room_name} and ${device_name} into a global room_topic variable
+globals:
+  - id: room_topic
+    type: std::string
+    initial_value: '"espresense/rooms/${room_name}/${device_name}"'
+
+# see https://gist.github.com/kmdm/c01c0693b1380d826af200a3e9b2a656
+esp32_ble_tracker:
+  scan_parameters:
+    window: 300ms
+    continuous: false
+  on_ble_advertise:
+    - then:
+        - lambda: |-
+            if (x.get_ibeacon().has_value()) {
+                std::string uuid;
+                esp_bt_uuid_t raw_uuid = x.get_ibeacon().value().get_uuid().get_uuid();
+                char sbuf[64];
+                char *bpos = sbuf;
+                switch (raw_uuid.len) {
+                    case ESP_UUID_LEN_128:
+                        for (int8_t i = 0; i <= 15; i++) {
+                            sprintf(bpos, "%02x", raw_uuid.uuid.uuid128[i]);
+                            bpos += 2;
+                            if (i == 6 || i == 8 || i == 10 || i == 12)
+                                  sprintf(bpos++, "-");
+                        }
+                        sbuf[47] = '\0';
+                        uuid.assign(sbuf);
+                        break;
+                    default:
+                        uuid = x.get_ibeacon().value().get_uuid().to_string();
+                        std::transform(uuid.begin(), uuid.end(), uuid.begin(), [](unsigned char c){ return std::tolower(c); });
+                        break;
+                }
+                char mbuf[32] = {0};
+                sprintf(mbuf, "-%hu-%hu", x.get_ibeacon().value().get_major(), x.get_ibeacon().value().get_minor());
+                uuid.append(mbuf);
+                int8_t tx_power = x.get_ibeacon().value().get_signal_power();
+                if (tx_power >= 100) {
+                  tx_power = -69;
+                }
+                float dist = pow(10, (float)(tx_power - x.get_rssi()) / (10 * 2));
+                if (dist < 50) {
+                    ESP_LOGD("ble_adv", "Sending MQTT room update for '%s' (%s): %.03fm (%d rssi, %d sigpow)",
+                             x.get_name().c_str(), uuid.c_str(), dist, x.get_rssi(), tx_power);
+                    # trying to mimic the structure of espresense mqtt messages
+                    # espresense/devices/msft:cdp:0922/room_name {
+                    #   "mac":"21567deef707",
+                    #   "id":"msft:cdp:0922",
+                    #   "idType":40,
+                    #   "rssi@1m":-71,
+                    #   "rssi":-55,
+                    #   "raw":0.35,
+                    #   "distance":0.35,
+                    #   "int":66
+                    # }
+                    id(mqtt_client).publish_json(id(room_topic), [=](JsonObject root) {
+                        root["id"] = uuid;
+                        root["name"] = x.get_name();
+                        root["distance"] = dist;
+                        root["rssi"] = x.get_rssi();
+                        root["tx_power"] = tx_power;
+                    });
+                } else {
+                    ESP_LOGD("ble_adv", "Skipping MQTT room update for '%s' (%s): %.03fm (%d rssi, %d sigpow)",
+                             x.get_name().c_str(), uuid.c_str(), dist, x.get_rssi(), tx_power);
+                }
+            }

@@ -1,0 +1,11 @@
+# ble-proxy device specific config
+
+substitutions:
+  device_name: ble-proxy-6
+  room_name: "Master bedroom"
+  friendly_name: "BLE-proxy 6"
+  description: "BLE-proxy 6 in master bedroom"
+
+# ble-proxy generic config
+
+<<: !include ble-proxy-base.yaml

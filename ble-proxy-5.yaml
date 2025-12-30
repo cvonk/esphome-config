@@ -1,0 +1,11 @@
+# ble-proxy device specific config
+
+substitutions:
+  device_name: ble-proxy-5
+  room_name: "Apartment bedroom"
+  friendly_name: "BLE-proxy 5"
+  description: "BLE-proxy 5 in apartment bedroom"
+
+# ble-proxy generic config
+
+<<: !include ble-proxy-base.yaml

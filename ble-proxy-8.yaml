@@ -1,0 +1,11 @@
+# ble-proxy device specific config
+
+substitutions:
+  device_name: ble-proxy-8
+  room_name: "Linen closet"
+  friendly_name: "BLE-proxy 8"
+  description: "BLE-proxy 8 in linen closet"
+
+# ble-proxy generic config
+
+<<: !include ble-proxy-base.yaml

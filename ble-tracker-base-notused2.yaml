@@ -1,4 +1,7 @@
-# bt-proxy generic configuration
+# ble-tracker generic configuration
+#
+# This sends BLE advertisements to Home Assistant.  It works, but needs
+# something that combines the data into presence information.
 
 # based on https://github.com/myhomeiot/esphome-components/blob/main/examples/ble_gateway/esphome.yaml
 
@@ -10,11 +13,16 @@ wifi:
   - ssid: !secret wifi_ssid
     password: !secret wifi_password
   ap: # enable fallback ap captive portal in case wifi connection fails
-    ssid: "${name} Config"
+    ssid: "${device_name} Config"
     password: !secret wifi_password
+  on_connect:
+    - esp32_ble_tracker.start_scan:
+        continuous: true
+  on_disconnect:
+    - esp32_ble_tracker.stop_scan:
 
 esphome:
-  name: ${name}
+  name: ${device_name}
   comment: ${description}
   friendly_name: ${friendly_name}
 
@@ -45,9 +53,13 @@ web_server:
 
 captive_portal:
     
+# see https://gist.github.com/kmdm/c01c0693b1380d826af200a3e9b2a656
 esp32_ble_tracker:
-    scan_parameters:
-      active: True 
+  scan_parameters:
+    window: 300ms
+    continuous: false
+
+# use the ble_gateway component from myhomeiot/esphome-components
 
 external_components:
   - source: github://myhomeiot/esphome-components
@@ -69,33 +81,23 @@ ble_gateway:
                       ble_gateway::BLEGateway::scan_result_to_hci_packet_hex(x.get_scan_result()).c_str());
                   return true;
                 }
-              return false;
+              return false;              
           then:
-      #- homeassistant.event: # https://esphome.io/components/api/#homeassistantevent-action
-      #    event: esphome.on_ble_advertise
-      #    data:
-      #      packet: !lambda return packet;
-      #      # gateway_id: ${device_id}
-      - homeassistant.action: # enable "Allow the device to perform Home Assistant Actions" in the ESPHome integration settings for the device
-          action: ble_monitor.parse_data
-          data:
-            packet: !lambda return packet;  
+            #- homeassistant.event: # https://esphome.io/components/api/#homeassistantevent-action
+            #    event: esphome.on_ble_advertise
+            #    data:
+            #      packet: !lambda return packet;
+            #      # gateway_id: ${device_id}
+            - homeassistant.action: # enable "Allow the device to perform Home Assistant Actions" in the ESPHome integration settings for the device
+                action: ble_monitor.parse_data
+                data:
+                  packet: !lambda return packet;  
 
 binary_sensor:
   - platform: status
     name: "Home Assistant"
     id: ink_ha_connected
     entity_category: diagnostic
-
-  - platform: homeassistant
-    id: ble_gateway_discovery
-    entity_id: binary_sensor.ble_gateway
-    attribute: discovery
-    entity_category: config
-    disabled_by_default: false
-    on_state:
-      then:
-        lambda: id(blegateway).set_discovery(x);
 
 text_sensor:
   #- platform: ble_scanner
@@ -135,11 +137,6 @@ sensor:
     state_class: measurement
     update_interval:  ${update_interval_wifi}
     entity_category: diagnostic
-
-  - platform: uptime
-    name: Uptime
-    id: sys_uptime
-    update_interval: 60s
 
   - platform: template
     id: esp_memory

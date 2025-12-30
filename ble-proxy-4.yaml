@@ -1,0 +1,11 @@
+# ble-proxy device specific config
+
+substitutions:
+  device_name: ble-proxy-4
+  room_name: "Foyer"
+  friendly_name: "BLE-proxy 4"
+  description: "BLE-proxy 4 in foyer"
+
+# ble-proxy generic config
+
+<<: !include ble-proxy-base.yaml
