@@ -1,4 +1,4 @@
 secrets.yaml
 .esphome/
-firmware.factory.bin
-firmware.ota.bin
+
+components/opnpool/__pycache__/__init__.cpython-313.pyc
